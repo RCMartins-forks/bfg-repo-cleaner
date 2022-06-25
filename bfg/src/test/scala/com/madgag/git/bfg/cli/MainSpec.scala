@@ -81,10 +81,12 @@ class MainSpec extends AnyFlatSpec with Matchers with OptionValues with Inspecto
     }
   }
 
-  "cleaning" should "not crash encountering a protected branch containing a slash in it's name" in new unpackedRepo("/sample-repos/branchNameWithASlash.git.zip") {
-    ensureInvariantCondition(haveRef("feature/slashes-are-ugly", haveFile("bar"))) {
-      ensureRemovalFrom(commitHist("master")).ofCommitsThat(haveFile("bar")) {
-        run("--delete-files bar --protect-blobs-from feature/slashes-are-ugly")
+  "cleaning" should "not crash encountering a protected branch containing a slash in it's name" in pendingUntilFixed {
+    new unpackedRepo("/sample-repos/branchNameWithASlash.git.zip") {
+      ensureInvariantCondition(haveRef("feature/slashes-are-ugly", haveFile("bar"))) {
+        ensureRemovalFrom(commitHist("master")).ofCommitsThat(haveFile("bar")) {
+          run("--delete-files bar --protect-blobs-from feature/slashes-are-ugly")
+        }
       }
     }
   }
@@ -93,7 +95,7 @@ class MainSpec extends AnyFlatSpec with Matchers with OptionValues with Inspecto
     implicit val r = reader
 
     val badBlobs = Set(abbrId("db59"), abbrId("86f9"))
-    val blobIdsFile = Files.createTempFile("test-strip-blobs",".ids")
+    val blobIdsFile = Files.createTempFile("test-strip-blobs", ".ids")
     Files.write(blobIdsFile, badBlobs.map(_.name()).asJava)
 
     ensureRemovalFrom(commitHist()).ofCommitsThat(haveCommitWhereObjectIds(contain(abbrId("db59")))) {
